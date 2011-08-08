@@ -1,0 +1,11 @@
+*.py[co]
+*.c
+*.so
+pumila/*.html
+*~
+*#*#
+*.#*
+/.old/
+/dist/
+/build/
+/MANIFEST

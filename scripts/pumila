@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+
+# pumila: convert images to sound waves
+# Copyright (C) 2011 Niels Serup
+
+# This file is part of pumila.
+
+# pumila is free software: you can redistribute it and/or modify it under the
+# terms of the GNU Affero General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# pumila is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with pumila.  If not, see <http://www.gnu.org/licenses/>.
+
+from pumila.misc import log
+from pumila.info import program
+from pumila.cmdline import parse_args
+
+try:
+    from setproctitle import setproctitle
+    setproctitle(program.name)
+except ImportError:
+    pass
+
+core = parse_args()
+try:
+    core.run()
+except (KeyboardInterrupt, EOFError):
+    pass
+except Exception as e:
+    log(e, error=True, traceback=True)
+finally:
+    core.end()
