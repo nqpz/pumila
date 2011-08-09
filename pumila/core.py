@@ -33,7 +33,6 @@ import colorsys
 import time
 import collections
 import math
-import struct
 import wave
 try:
     import progressbar
@@ -90,8 +89,6 @@ class SoundCore(SoundGenerator):
 
         if self.playatonce:
             self.play = True
-        if not outputfile and not self.play and returndata is None:
-            self.returndata = True
         elif not outputfile and outputformat:
             self.outputformat = None
         elif outputfile:
@@ -179,14 +176,16 @@ class SoundCore(SoundGenerator):
         self.duration_ratio = self.fullduration / self.pixelduration
         self.one_pixel_samples_len = int(self.pixelduration *
                                          self.framerate / 1000)
-        self.samples_len = int(self.one_pixel_samples_len * self.duration_ratio)
+        self.t_samples_len = int(self.one_pixel_samples_len * self.duration_ratio)
+        self.samples_len = self.t_samples_len * self.channels
         self.duration_ratio = self.fullduration / self.pixelduration
         self.log('Number of samples for one pixel is {}, total number of samples is {}.'.format(
-                self.one_pixel_samples_len, self.samples_len))
+                self.one_pixel_samples_len, self.t_samples_len))
 
         self.pixelduration = Fraction(1000 * self.one_pixel_samples_len,
-                                      self.framerate)
-        self.fullduration = Fraction(1000 * self.samples_len, self.framerate)
+                                      self.framerate * self.channels)
+        self.fullduration = Fraction(1000 * self.samples_len,
+                                     self.framerate * self.channels)
         self.log('Pixel duration is {} ms, full duration is {} ms.'.format(
                 self.pixelduration.numerator if self.pixelduration.denominator == 1
                 else '~{:.2f}'.format(float(self.pixelduration)), 
@@ -244,7 +243,9 @@ class SoundCore(SoundGenerator):
         if self.showprogressbar:
             self.pbar.finish()
         gen_diff = time.time() - gen_start
-        self.log('Sound has been generated. The process took {:.1f} seconds.'.format(gen_diff))
+        self.log('Sound has been generated. The process took {:.1f} seconds{}.'.format(
+                gen_diff, " (that's more than {} minutes!)".format(int(gen_diff // 60))
+                if gen_diff / 60 > 3 else ''))
 
         if self.play:
             if self.playatonce:
@@ -257,14 +258,10 @@ class SoundCore(SoundGenerator):
                 wait = math.ceil(self.fullduration)
             pygame.time.wait(wait)
 
-        if self.outputformat == 'wav':
-            self.wavof.close()
-
-    def wavof_write(self, val):
-        self.wavof.writeframesraw(struct.pack('<h', val))
-        
     def end(self):
         """Finalize objects."""
         SoundGenerator.end(self)
+        if self.outputformat == 'wav':
+            self.wavof.close()
         if self.play:
             pygame.mixer.quit()

@@ -28,12 +28,15 @@ try:
 except ImportError:
     pass
 
-core = parse_args()
 try:
+    core = parse_args()
     core.run()
 except (KeyboardInterrupt, EOFError):
     pass
 except Exception as e:
     log(e, error=True, traceback=True)
 finally:
-    core.end()
+    try:
+        core.end()
+    except NameError:
+        pass

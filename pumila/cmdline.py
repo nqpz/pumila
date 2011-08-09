@@ -74,6 +74,7 @@ KEY=VALUE pairs after a slash after the filename, like
 between 0 and 1, and defaults to 1. `min' and `max' denotes the lowest and
 highest frequency and understand units. `min' defaults to 220 Hz, and `max'
 defaults to 2200 Hz.
+
 ''')
 
     parser.add_option('-o', '--output-file', dest='outputfile',
@@ -181,8 +182,7 @@ than 100 milliseconds.
                       help='''
 
 add a key-value metadata set. Meaningful KEY strings include "title", "author",
-and "description". All strings are accepted by the custom .pml format, while
-support for adding metadata to WAVE files is limited.
+and "description". This option currently does nothing.
 
 ''')
 

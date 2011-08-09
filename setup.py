@@ -20,7 +20,7 @@ setup(
     long_description=open('README.txt').read(),
     license=p.short_license_name,
     packages=['pumila'],
-    scripts=['scripts/pumila'],
+    scripts=['scripts/pumila', 'scripts/pumila-show'],
     cmdclass = {'build_ext': build_ext},
     ext_modules = ext_modules,
     classifiers=['Development Status :: 3 - Alpha',

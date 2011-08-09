@@ -1,0 +1,102 @@
+#!/usr/bin/env python3
+
+# pumila: convert images to sound waves
+# Copyright (C) 2011 Niels Serup
+
+# This file is part of pumila.
+
+# pumila is free software: you can redistribute it and/or modify it under the
+# terms of the GNU Affero General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option) any
+# later version.
+#
+# pumila is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with pumila.  If not, see <http://www.gnu.org/licenses/>.
+
+import sys
+import wave
+import time
+import pygame
+from pygame.locals import *
+
+try:
+    from setproctitle import setproctitle
+    setproctitle('pumila-show')
+except ImportError:
+    pass
+
+def playandshow(wav, img, width=640, height=480):
+    width, height = int(width), int(height)
+    wf = wave.open(wav, 'r')
+    channels, framerate, sampwidth = \
+        wf.getnchannels(), wf.getframerate(), wf.getsampwidth() * 8
+    wf.close()
+    pygame.mixer.init(framerate, -sampwidth, channels)
+    pygame.display.init()
+    
+    sound = pygame.mixer.Sound(wav)
+    image = pygame.image.load(img)
+
+    iwidth, iheight = image.get_width(), image.get_height()
+    wc, hc = iwidth > width, iheight > height
+    if wc or hc:
+        if wc:
+            ratio = iwidth / width
+        if hc:
+            oratio = iheight / height
+            if oratio > ratio:
+                ratio = oratio
+        nsize = (int(iwidth // ratio), int(iheight // ratio))
+        image = pygame.transform.smoothscale(image, nsize)
+        
+    screen = pygame.display.set_mode(nsize)
+    pygame.display.set_caption('pumila-show')
+    pygame.mouse.set_visible(False)
+
+    image = image.convert(24)
+
+    slen, iwid = sound.get_length(), image.get_width()
+    step = slen / iwid
+
+    screen.blit(image, (0, 0))
+    pygame.display.flip()
+
+    line = pygame.Surface((1, screen.get_height())).convert()
+    line.fill((255, 0, 0))
+
+    begin, extra, i = time.time(), 0., 0
+    sound.play()
+    while i < iwid:
+        screen.blit(image, (0, 0))
+        screen.blit(line, (i, 0))
+        pygame.display.flip()
+        if QUIT in (x.type for x in pygame.event.get()):
+            break
+        diff = time.time() - begin - extra
+        steps = int(diff // step)
+        extra += steps * step
+        i += steps
+
+    pygame.quit()
+
+def parse_args(cmdargs=None):
+    if not cmdargs:
+        cmdargs = sys.argv[1:]
+    if not cmdargs or '-h' in cmdargs or '--help' in cmdargs or len(cmdargs) < 2:
+        print('''
+Usage: pumila-show WAVINFILE IMAGEINFILE [WINDOWWIDTH [WINDOWHEIGHT]]
+
+play sound while showing which row of pixels the sound originates from
+''')
+    if len(cmdargs) < 2:
+        print('pumila-show: error: not enough arguments', file=sys.stderr)
+    playandshow(*cmdargs[:4])
+
+if __name__ == '__main__':
+    parse_args()
+    

@@ -23,7 +23,6 @@
 Generates sound.
 """
 
-from fractions import Fraction
 import itertools
 import colorsys
 import math
@@ -45,9 +44,10 @@ cdef class SoundGenerator:
         channels, onepixsamplen = self.channels, self.one_pixel_samples_len
         sampnum, step = 0, 1.0 / self.framerate
         imgs_range, freq_range, gains = self.imgs_range, self.freq_range, self.gains
+        rgbs, alphas = self.rgbs, self.alphas
         for imgsrgb, imgsalpha in itertools.zip_longest(
-            itertools.zip_longest(*self.rgbs),
-            itertools.zip_longest(*self.alphas)):
+            itertools.zip_longest(*rgbs),
+            itertools.zip_longest(*alphas)):
             pvars = tuple(tuple(filter(lambda x: x is not None,
                     (self.rgbafg_to_wavefunc(rgb[0], rgb[1], rgb[2], a, freq, gain)
                     for rgb, a, freq in (itertools.zip_longest(
@@ -107,7 +107,9 @@ cdef class SoundGenerator:
         if self.showprogressbar:
             pbar_interval, pbar_update = self.pbar_interval, self.pbar.update
         if self.outputformat == 'wav':
-            wavof_write = self.wavof_write
+            wavof = self.wavof
+            def wavof_write(val):
+                wavof.writeframesraw(struct.pack('<h', val))
         if self.play:
             soundarr = self.soundarr
             i, j = self.sound_offset, 0
@@ -146,6 +148,15 @@ cdef class SoundGenerator:
                 for x in self.get_samples():
                     wavof_write(int(x * 32767))
                     i += 1
+        else:
+            if self.showprogressbar:
+                i = 0
+                for x in self.get_samples():
+                    if i % pbar_interval == 0: pbar_update(i)
+                    i += 1
+            else:
+                for x in self.get_samples():
+                    pass
 
     def end(self):
         """Finalize objects."""
