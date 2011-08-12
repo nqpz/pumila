@@ -34,7 +34,7 @@ program = misc.AttributeDict(
     'version',            misc.PeriodTextTuple(0, 1, 0),
     'description',        'convert images to sound waves',
     'author',             'Niels Serup',
-    'author_email',       'ns@metanohi.org',
+    'author_email',       'ns@metanohi.name',
     'author_with_email',  '{author} <{author_email}>',
     'url',                'http://metanohi.name/projects/pumila/',
     'copyright',          'Copyright (C) 2011  Niels Serup',

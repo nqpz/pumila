@@ -65,7 +65,7 @@ def parse_args(cmdargs=None):
         epilog='''
 Input images must be in a format supported by pygame, i.e. either PNG, JPEG,
 GIF, BMP, TGA, PCX, TIF, LBM, PMB, PGM, PPM, or XPM (or a subset). There is
-also limited support for OpenRaster files..
+also limited support for OpenRaster files.
 
 If you specify more than one input file, the generated sounds from each file
 will be mixed. Extra options, such as gain, can be given as comma-seperated

@@ -19,6 +19,7 @@
 # along with pumila.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+import os
 import wave
 import time
 import pygame
@@ -30,15 +31,16 @@ try:
 except ImportError:
     pass
 
-def playandshow(wav, img, width=640, height=480):
+def playandshow(wav, img, width=640, height=480, outputdir=None):
     width, height = int(width), int(height)
     wf = wave.open(wav, 'r')
     channels, framerate, sampwidth = \
         wf.getnchannels(), wf.getframerate(), wf.getsampwidth() * 8
     wf.close()
+    
     pygame.mixer.init(framerate, -sampwidth, channels)
     pygame.display.init()
-    
+
     sound = pygame.mixer.Sound(wav)
     image = pygame.image.load(img)
 
@@ -53,34 +55,51 @@ def playandshow(wav, img, width=640, height=480):
                 ratio = oratio
         nsize = (int(iwidth // ratio), int(iheight // ratio))
         image = pygame.transform.smoothscale(image, nsize)
-        
-    screen = pygame.display.set_mode(nsize)
-    pygame.display.set_caption('pumila-show')
-    pygame.mouse.set_visible(False)
-
-    image = image.convert(24)
 
     slen, iwid = sound.get_length(), image.get_width()
     step = slen / iwid
+    sstep = step - .01
+    if sstep < 0:
+        sstep = 0
 
-    screen.blit(image, (0, 0))
-    pygame.display.flip()
-
-    line = pygame.Surface((1, screen.get_height())).convert()
+    image = image.convert(24)
+    line = pygame.Surface((1, nsize[1]))
     line.fill((255, 0, 0))
 
-    begin, extra, i = time.time(), 0., 0
-    sound.play()
-    while i < iwid:
+    if outputdir is None:
+        screen = pygame.display.set_mode(nsize)
+        pygame.display.set_caption('pumila-show')
+        pygame.mouse.set_visible(False)
+
         screen.blit(image, (0, 0))
-        screen.blit(line, (i, 0))
         pygame.display.flip()
-        if QUIT in (x.type for x in pygame.event.get()):
-            break
-        diff = time.time() - begin - extra
-        steps = int(diff // step)
-        extra += steps * step
-        i += steps
+
+        begin, extra, i = time.time(), 0., 0
+        sound.play()
+        while i < iwid:
+            screen.blit(image, (0, 0))
+            screen.blit(line, (i, 0))
+            pygame.display.flip()
+            if QUIT in (x.type for x in pygame.event.get()):
+                break
+            diff = time.time() - begin - extra
+            steps = int(diff // step)
+            extra += steps * step
+            i += steps
+            time.sleep(sstep)
+    else:
+        try:
+            os.mkdir(outputdir)
+        except OSError:
+            pass
+        screen = pygame.Surface(nsize, depth=24)
+        fmt = '{{:0{}d}}.png'.format(len(str(iwid - 1)))
+        for i in range(iwid):
+            screen.blit(image, (0, 0))
+            screen.blit(line, (i, 0))
+            fi = os.path.join(outputdir, fmt.format(i))
+            print(fi)
+            pygame.image.save(screen, fi)
 
     pygame.quit()
 
@@ -89,13 +108,16 @@ def parse_args(cmdargs=None):
         cmdargs = sys.argv[1:]
     if not cmdargs or '-h' in cmdargs or '--help' in cmdargs or len(cmdargs) < 2:
         print('''
-Usage: pumila-show WAVINFILE IMAGEINFILE [WINDOWWIDTH [WINDOWHEIGHT]]
+Usage: pumila-show WAVINFILE IMAGEINFILE [WINDOWWIDTH [WINDOWHEIGHT [OUTPUTDIR]]]
 
-play sound while showing which row of pixels the sound originates from
+If OUTPUTDIR is not given, play sound while showing which row of pixels the
+sound originates from. Else, generate the same graphics, but save all its
+frames to OUTPUTDIR instead of showing them.
+
 ''')
     if len(cmdargs) < 2:
         print('pumila-show: error: not enough arguments', file=sys.stderr)
-    playandshow(*cmdargs[:4])
+    playandshow(*cmdargs[:5])
 
 if __name__ == '__main__':
     parse_args()

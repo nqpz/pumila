@@ -18,13 +18,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with pumila.  If not, see <http://www.gnu.org/licenses/>.
 
-from . import info
-
 """
 pumila is an image-to-sound converter. It transforms variations in color,
 brightness, saturation and opacity into different sounds.
 """
 # See README.txt for more information.
+
+from . import info
 
 __version__ = info.program.version.text
 __author__ = info.program.author_with_email
