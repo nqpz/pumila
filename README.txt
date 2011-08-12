@@ -16,7 +16,7 @@ Contact
 =======
 
 The author of pumila is Niels Serup. Bug reports and suggestions should be sent
-to ns@metanohi.org for the time being.
+to ns@metanohi.name for the time being.
 
 
 Installation
@@ -25,7 +25,7 @@ Installation
 Way #1
 ------
 Get the newest version of pumila at
-http://metanohi.org/projects/pumila/ or at
+http://metanohi.name/projects/pumila/ or at
 http://pypi.python.org/pypi/pumila
 
 Extract pumila from the downloaded file, cd into it and run this in a
@@ -55,7 +55,8 @@ Python 3.1+
 
 PyGame
 ------
-Under normal circumstances, you would do this:
+Under normal circumstances, you would do something like this:
+
 * For DEB-based distros: run ``apt-get install python-pygame``
 * For RPM-based distros: run ``yum install pygame``
 * For other distros: do something similar or get it at

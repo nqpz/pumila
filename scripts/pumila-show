@@ -117,6 +117,7 @@ frames to OUTPUTDIR instead of showing them.
 ''')
     if len(cmdargs) < 2:
         print('pumila-show: error: not enough arguments', file=sys.stderr)
+        sys.exit(1)
     playandshow(*cmdargs[:5])
 
 if __name__ == '__main__':
