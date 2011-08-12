@@ -202,10 +202,13 @@ def setlogfile(fobj=None, close_on_exit=None, alt=False):
         close_on_exit = True
 
     if isinstance(fobj, str):
-        if not alt:
-            _logfile = open(fobj, 'w')
-        else:
-            _altlogfile = open(fobj, 'w')
+        try:
+            if not alt:
+                _logfile = open(fobj, 'w')
+            else:
+                _altlogfile = open(fobj, 'w')
+        except Exception:
+            pass
     else:
         if not alt:
             _logfile = fobj

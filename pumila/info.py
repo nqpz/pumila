@@ -59,7 +59,7 @@ localpaths = misc.AttributeDict(
     apply_what=(str,)
     )
 
-@misc.tryorpass(OSError)
+@misc.tryorpass(Exception)
 def createlocaldirs():
     for v in localpaths.dirs.values():
         os.makedirs(v)

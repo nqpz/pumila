@@ -37,9 +37,9 @@ Examples are available in the ``examples`` directory.
 
 Way #2
 ------
-Just run this (requires that you have python3-setuptools installed)::
+Just run this::
 
-  # easy_install3 pumila
+  # pip-3.1 install pumila
 
 Note that this will not make any examples available.
 
